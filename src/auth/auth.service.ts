@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
-export class AuthService {}
+export class AuthService {
+  constructor(private readonly jwtService: JwtService) {}
+}
 
 /**
  * 구현해야 할 기능
