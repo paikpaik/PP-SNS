@@ -33,3 +33,11 @@ export class AuthService {
  *      3. 모두 통과되면 찾은 사용자 정보 반환
  *      4. loginWithEmail에서 반환된 데이터를 기반으로 토큰 생성
  */
+
+/**
+ * Payload에 들어갈 정보
+ *
+ * 1) email
+ * 2) sub -> id
+ * 3) type: 'access' | 'refresh'
+ */
