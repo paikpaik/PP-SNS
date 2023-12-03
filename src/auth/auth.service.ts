@@ -47,7 +47,7 @@ export class AuthService {
    * {authorization: 'Basic {token}'}
    * {authorization: 'Bearer {token}'}
    */
-  async extractTokenFromHeader(header: string, isBearer: boolean) {
+  extractTokenFromHeader(header: string, isBearer: boolean) {
     const splitToken = header.split(' ');
     const prefix = isBearer ? 'Bearer' : 'Basic';
     if (splitToken.length !== 2 || splitToken[0] !== prefix) {
@@ -55,6 +55,58 @@ export class AuthService {
     }
     const token = splitToken[1];
     return token;
+  }
+
+  /**
+   * Basic {token}
+   *
+   * 1) {token} -> email:password
+   * 2) email:password -> [email, password]
+   * 3) {email: email, password: password}
+   */
+  decodeBasicToken(base64String: string) {
+    const decoded = Buffer.from(base64String, 'base64').toString('utf8');
+    const split = decoded.split(':');
+    if (split.length !== 2) {
+      throw new UnauthorizedException('잘못된 유형의 토큰입니다.');
+    }
+    const email = split[0];
+    const password = split[1];
+    return {
+      email,
+      password,
+    };
+  }
+
+  /**
+   * 토큰 검증
+   */
+  verifyToken(token: string) {
+    return this.jwtService.verify(token, {
+      secret: process.env.JWT_SECRET,
+    });
+  }
+
+  rotateToken(token: string, isRefreshToken: boolean) {
+    const decoded = this.jwtService.verify(token, {
+      secret: process.env.JWT_SECRET,
+    });
+    /**
+     * sub: id,
+     * email: email,
+     * type: 'access' | 'refresh'
+     */
+    if (decoded.type !== 'refresh') {
+      throw new UnauthorizedException(
+        '토큰 재발급은 Refresh 토큰으로만 가능합니다.',
+      );
+    }
+    return this.signToken(
+      {
+        ...decoded,
+      },
+      isRefreshToken,
+    );
   }
 
   signToken(user: Pick<UsersModel, 'email' | 'id'>, isRefreshToken: boolean) {
