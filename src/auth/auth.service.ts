@@ -3,6 +3,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersModel } from 'src/users/entities/users.entity';
 import * as bcrypt from 'bcrypt';
+import { HASH_ROUNDS } from './const/auth.const';
 
 @Injectable()
 export class AuthService {
@@ -81,5 +82,14 @@ export class AuthService {
   async loginWithEmail(user: Pick<UsersModel, 'email' | 'password'>) {
     const existingUser = await this.authenticateWithEmailAndPassword(user);
     return this.loginUser(existingUser);
+  }
+
+  // hash는 현재 미적용
+  async registerWithEmail(
+    user: Pick<UsersModel, 'nickname' | 'email' | 'password'>,
+  ) {
+    const hash = await bcrypt.hash(user.password, HASH_ROUNDS);
+    const newUser = await this.usersService.createUser(user);
+    return this.loginUser(newUser);
   }
 }
