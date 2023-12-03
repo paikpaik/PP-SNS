@@ -84,12 +84,14 @@ export class AuthService {
     return this.loginUser(existingUser);
   }
 
-  // hash는 현재 미적용
   async registerWithEmail(
     user: Pick<UsersModel, 'nickname' | 'email' | 'password'>,
   ) {
     const hash = await bcrypt.hash(user.password, HASH_ROUNDS);
-    const newUser = await this.usersService.createUser(user);
+    const newUser = await this.usersService.createUser({
+      ...user,
+      password: hash,
+    });
     return this.loginUser(newUser);
   }
 }
