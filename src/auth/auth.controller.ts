@@ -9,9 +9,6 @@ export class AuthController {
   postTokenAccess(@Headers('authorization') rawToken: string) {
     const token = this.authService.extractTokenFromHeader(rawToken, true);
     const newToken = this.authService.rotateToken(token, false);
-    /**
-     * {accessToken: {token}}
-     */
     return {
       accessToken: newToken,
     };
@@ -21,9 +18,6 @@ export class AuthController {
   postTokenRefresh(@Headers('authorization') rawToken: string) {
     const token = this.authService.extractTokenFromHeader(rawToken, true);
     const newToken = this.authService.rotateToken(token, true);
-    /**
-     * {refreshToken: {token}}
-     */
     return {
       refreshToken: newToken,
     };
